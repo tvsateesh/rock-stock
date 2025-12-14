@@ -405,6 +405,50 @@ kill -9 <PID>
 - Rebuild Angular: `ng build`
 - Check Material imports in `app.module.ts`
 
+## Deployment
+
+### Deploy to Render (Recommended)
+
+Rock Stock is ready for production deployment on Render. See [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for detailed instructions.
+
+**Quick Start:**
+
+```bash
+# Run pre-deployment checks
+chmod +x deploy.sh
+./deploy.sh
+
+# Commit and push
+git add .
+git commit -m "chore: Prepare for Render deployment"
+git push origin main
+
+# Deploy via Render Dashboard
+# https://dashboard.render.com
+```
+
+### Deploy to Other Platforms
+
+- **Heroku**: Use Procfile for build/start commands
+- **AWS**: Use Elastic Beanstalk or EC2 with Docker
+- **Google Cloud**: Use Cloud Run or App Engine
+- **Azure**: Use App Service or Container Instances
+- **DigitalOcean**: Use App Platform or Droplets with Docker
+
+### Docker Deployment
+
+```bash
+# Build images
+docker-compose build
+
+# Run containers
+docker-compose up
+
+# Push to registry
+docker push your-registry/rock-stock-backend
+docker push your-registry/rock-stock-frontend
+```
+
 ## Contributing
 
 1. Fork the repository
@@ -413,13 +457,18 @@ kill -9 <PID>
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+
 ## License
 
 MIT License - see LICENSE file for details
 
 ## Support
 
-For issues, questions, or suggestions, please open a GitHub Issue.
+- **Documentation**: Check [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for deployment
+- **Issues**: Open a GitHub Issue for bugs and features
+- **Discussions**: Ask questions in GitHub Discussions
+- **Contributing**: See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Author
 
