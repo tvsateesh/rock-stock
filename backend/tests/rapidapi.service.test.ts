@@ -1,8 +1,11 @@
 import axios from 'axios';
-import { RapidApiYahooService } from '../src/services/RapidApiYahooService';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+// Ensure axios.create() returns the mocked axios instance used in httpClient
+(mockedAxios.create as unknown as jest.Mock) = jest.fn().mockReturnValue(mockedAxios);
+// Import the service after mocking axios so httpClient picks up the mocked instance
+const { RapidApiYahooService } = require('../src/services/RapidApiYahooService');
 
 describe('RapidApiYahooService', () => {
   afterEach(() => jest.resetAllMocks());
