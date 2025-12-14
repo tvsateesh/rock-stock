@@ -1,0 +1,9 @@
+{
+  "quotes": [
+    { "symbol": "AAPL", "shortname": "Apple Inc.", "name": "Apple" },
+    { "symbol": "MSFT", "shortname": "Microsoft Corporation", "name": "Microsoft" },
+    { "symbol": "GOOGL", "shortname": "Alphabet Inc.", "name": "Alphabet" },
+    { "symbol": "AMZN", "shortname": "Amazon.com, Inc.", "name": "Amazon" },
+    { "symbol": "TSLA", "shortname": "Tesla, Inc.", "name": "Tesla" }
+  ]
+}
