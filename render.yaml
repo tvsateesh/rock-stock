@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rock-stock-backend
+    name: rock-stock
     runtime: node
     runtimeVersion: 18.16.0
     region: oregon
@@ -25,14 +25,3 @@ services:
       - key: REDIS_URL
         scope: secret
     healthCheckPath: /api/quote?symbol=AAPL
-    preDeployCommand: npm run build
-
-  - type: static_site
-    name: rock-stock-frontend
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    publishPath: dist/rock-stock
-    envVars:
-      - key: API_URL
-        value: https://rock-stock-backend.onrender.com/api
-    autoDeploy: true
