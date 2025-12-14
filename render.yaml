@@ -1,27 +1,22 @@
 services:
   - type: web
     name: rock-stock
-    runtime: node
-    runtimeVersion: 18.16.0
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     region: oregon
     plan: free
-    rootDir: backend
-    buildCommand: npm ci && npm run build
-    startCommand: node dist/server.js
     autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 3000
+        value: 4000
       - key: USE_MOCK
-        value: true
+        value: "false"
       - key: CACHE_TTL_SECONDS
-        value: 600
+        value: "600"
       - key: RAPIDAPI_KEY
         scope: secret
       - key: RAPIDAPI_HOST
         value: real-time-finance-data.p.rapidapi.com
-      - key: REDIS_URL
-        scope: secret
     healthCheckPath: /api/quote?symbol=AAPL
