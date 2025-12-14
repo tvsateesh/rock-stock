@@ -14,46 +14,29 @@ Render is a modern cloud platform that makes it easy to deploy web applications.
 2. **GitHub Repository**: Project pushed to GitHub (already done!)
 3. **Environment Variables**: RapidAPI credentials
 
-## Deployment Methods
+## Quick Start: Manual Deployment via Render Dashboard
 
-### Option 1: One-Click Deployment (Recommended)
-
-Click the button below to deploy directly:
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-Then follow the prompts to authorize GitHub and deploy.
-
-### Option 2: Manual Deployment via Render Dashboard
-
-#### Step 1: Create Backend Web Service
+### Step 1: Create Backend Web Service
 
 1. Log in to [Render Dashboard](https://dashboard.render.com)
 2. Click **New +** → **Web Service**
 3. Connect your GitHub repository
-4. Fill in the configuration:
+4. Select the repository and configure:
    - **Name**: `rock-stock-backend`
    - **Region**: Oregon (or closest to you)
    - **Branch**: `main`
    - **Runtime**: Node
-   - **Build Command**: 
-     ```
-     cd backend && npm install && npm run build
-     ```
-   - **Start Command**: 
-     ```
-     cd backend && npm start
-     ```
-   - **Plan**: Free (or paid if you need better uptime)
-5. Click **Advanced** and add environment variables
-6. Click **Create Web Service**
+   - **Root Directory**: `backend` (important!)
+   - **Build Command**: `npm ci && npm run build`
+   - **Start Command**: `node dist/server.js`
+   - **Plan**: Free tier (or Starter for better uptime)
+5. Click **Advanced** and scroll to **Environment** section
+6. Add environment variables (see below)
+7. Click **Create Web Service**
 
-#### Step 2: Configure Environment Variables
+### Step 2: Configure Environment Variables
 
-In the Render dashboard for your backend service:
-
-1. Go to **Environment** tab
-2. Add the following variables:
+In the Render dashboard for your backend service, go to **Settings** → **Environment** and add:
 
 | Key | Value | Type |
 |-----|-------|------|
@@ -67,104 +50,30 @@ In the Render dashboard for your backend service:
 
 3. Click **Save**
 
-#### Step 3: Deploy Frontend
+### Step 3: Deploy Frontend (Static Site - Recommended)
 
-**Option A: Static Site (Recommended)**
+1. In Render Dashboard, click **New +** → **Static Site**
+2. Connect your GitHub repository
+3. Configure:
+   - **Name**: `rock-stock-frontend`
+   - **Branch**: `main`
+   - **Build Command**: `cd frontend && npm run build`
+   - **Publish Directory**: `frontend/dist/rock-stock`
+4. Click **Create Static Site**
 
-1. Build the frontend locally:
-   ```bash
-   cd frontend
-   npm run build
-   ```
+## Post-Deployment: Connect Frontend to Backend
 
-2. In Render Dashboard, click **New +** → **Static Site**
-3. Connect repository or upload build folder
-4. Set **Build Command**: `cd frontend && npm run build`
-5. Set **Publish Directory**: `frontend/dist/rock-stock`
-6. Click **Create Static Site**
+After both services are deployed, update the frontend API URL:
 
-**Option B: Serve Frontend from Backend**
-
-For a simpler single-service deployment:
-
-1. Build frontend to backend's public directory:
-   ```bash
-   cd frontend
-   npm run build
-   cp -r dist/rock-stock ../backend/public
-   ```
-
-2. Update backend `server.ts` to serve static files:
-   ```typescript
-   import express from 'express';
-   import path from 'path';
-   
-   const app = express();
-   
-   // Serve static files
-   app.use(express.static(path.join(__dirname, '../public')));
-   
-   // API routes
-   app.use('/api', routes);
-   
-   // Fallback to index.html for SPA routing
-   app.get('*', (req, res) => {
-     res.sendFile(path.join(__dirname, '../public/index.html'));
-   });
-   ```
-
-3. Update backend `package.json` build script to include frontend build
-
-## Configuration Files
-
-### render.yaml
-
-The `render.yaml` file in your repository root configures both services:
-
-```yaml
-services:
-  - type: web
-    name: rock-stock-backend
-    runtime: node
-    region: oregon
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: RAPIDAPI_KEY
-        scope: secret
-```
-
-This allows one-click deployment.
-
-## Post-Deployment Configuration
-
-### 1. Update Frontend API URL
-
-After deployment, update the frontend to use your Render backend URL:
-
-1. Go to `frontend/src/environments/environment.prod.ts`
-2. Update `apiBaseUrl`:
+1. Edit `frontend/src/environments/environment.prod.ts`
+2. Update the backend URL to your Render service:
    ```typescript
    export const environment = {
      apiBaseUrl: 'https://rock-stock-backend.onrender.com/api',
      pollingIntervalMs: 15000
    };
    ```
-3. Rebuild and redeploy frontend
-
-### 2. CORS Configuration
-
-Update backend CORS settings for your frontend URL:
-
-```typescript
-// backend/src/server.ts
-const corsOptions = {
-  origin: [
-    'http://localhost:4200',
-    'https://your-frontend-url.onrender.com',
-    'https://your-custom-domain.com'
+3. Redeploy frontend with this change
   ],
   credentials: true
 };
