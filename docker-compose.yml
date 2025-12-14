@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rock-stock-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+      - RAPIDAPI_HOST=${RAPIDAPI_HOST:-real-time-finance-data.p.rapidapi.com}
+      - USE_MOCK=true
+      - CACHE_TTL_SECONDS=600
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - rock-stock-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rock-stock-frontend
+    ports:
+      - "4200:80"
+    environment:
+      - API_URL=http://backend:4000/api
+    depends_on:
+      - backend
+    networks:
+      - rock-stock-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: rock-stock-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - rock-stock-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  rock-stock-network:
+    driver: bridge
+
+volumes:
+  redis-data:
