@@ -43,7 +43,7 @@ COPY --from=backend-build /app/backend/package*.json ./
 RUN npm prune --omit=dev
 
 # Copy frontend build to public folder
-COPY --from=frontend-build /app/frontend/dist/rock-stock ./public
+COPY --from=frontend-build /app/frontend/dist ./public
 
 EXPOSE 4000
 
