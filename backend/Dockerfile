@@ -19,15 +19,14 @@ FROM node:18-alpine AS backend-builder
 
 WORKDIR /app/backend
 
-# Copy backend package files
+# Copy backend files
 COPY backend/package*.json ./
+COPY backend/src ./src
+COPY backend/tsconfig.json ./
+COPY backend/jest.config.js ./
 
 # Install all dependencies (including dev for build)
 RUN npm ci || npm install
-
-# Copy backend source files
-COPY backend/src ./src
-COPY backend/tsconfig.json ./
 
 # Build TypeScript
 RUN npm run build
