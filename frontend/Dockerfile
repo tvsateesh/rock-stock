@@ -2,14 +2,17 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files from root context
 COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci || npm install
 
-# Copy source code
-COPY frontend . 
+# Copy frontend source
+COPY frontend/src ./src
+COPY frontend/angular.json ./
+COPY frontend/tsconfig.json ./
+COPY frontend/tsconfig.app.json ./
 
 # Build Angular app
 RUN npm run build

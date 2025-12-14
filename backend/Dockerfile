@@ -25,8 +25,9 @@ COPY backend/package*.json ./
 # Install all dependencies (including dev for build)
 RUN npm ci || npm install
 
-# Copy backend source
-COPY backend . 
+# Copy backend source files
+COPY backend/src ./src
+COPY backend/tsconfig.json ./
 
 # Build TypeScript
 RUN npm run build
@@ -47,7 +48,8 @@ COPY --from=frontend-builder /app/frontend/dist/rock-stock ./public
 # Expose port
 EXPOSE 4000
 
-# Remove dev dependencies for production (only prod deps remain)
+# Start server
+CMD ["node", "dist/server.js"]
 RUN npm prune --omit=dev
 
 # Start the application
