@@ -3,13 +3,13 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci || npm install
 
 # Copy source code
-COPY . .
+COPY frontend . 
 
 # Build Angular app
 RUN npm run build
@@ -21,7 +21,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist/rock-stock /usr/share/nginx/html
 
 # Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
