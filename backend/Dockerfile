@@ -8,8 +8,11 @@ COPY frontend/package*.json ./
 # Install frontend dependencies
 RUN npm ci || npm install
 
-# Copy frontend source
-COPY frontend . 
+# Copy frontend source files
+COPY frontend/src ./src
+COPY frontend/angular.json ./
+COPY frontend/tsconfig.json ./
+COPY frontend/tsconfig.app.json ./
 
 # Build frontend
 RUN npm run build
