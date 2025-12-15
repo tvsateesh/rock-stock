@@ -33,27 +33,19 @@ export class RapidApiYahooService {
    * Search for stocks using auto-complete, fallback to quotes
    */
   static async search(query: string) {
-    // Try auto-complete if available
-    try {
-      const autoUrl = `/market/auto-complete?region=US&query=${encodeURIComponent(query)}`;
-      const autoResp = await http.get(autoUrl);
-      if (autoResp?.data) {
-        return autoResp.data;
-      }
-    } catch (e) {
-      // ignore and fallback
-    }
-
-    // Fallback to quotes for exact symbol
+    // Primary: use get-quotes and map to our expected shape
     try {
       const quotesUrl = `/market/v2/get-quotes?region=US&symbols=${encodeURIComponent(query.toUpperCase())}`;
       const quotesResp = await http.get(quotesUrl);
+      const data = quotesResp?.data || {};
+      const results = data.quoteResponse?.result || [];
       return {
-        quotes: quotesResp?.data ?? [],
+        quotes: results,
         news: [],
         research: []
       };
     } catch (e) {
+      // Fallback: empty result set
       return { quotes: [], news: [], research: [] };
     }
   }
