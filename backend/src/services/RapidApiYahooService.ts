@@ -17,7 +17,47 @@ export class RapidApiYahooService {
     try {
       const resp = await http.get(url);
       console.info('[RapidApiYahooService.getQuote] Response', { status: resp.status, statusText: resp.statusText });
-      return resp.data;
+      const data = resp.data || {};
+      const result = data.quoteResponse?.result || [];
+      const first = result[0];
+      if (!first) return null;
+
+      // Map to mock-style shape for frontend compatibility
+      const mapped = {
+        symbol: first.symbol,
+        price: {
+          shortName: first.shortName,
+          longName: first.longName,
+          regularMarketPrice: { raw: first.regularMarketPrice, fmt: String(first.regularMarketPrice) },
+          regularMarketChange: { raw: first.regularMarketChange, fmt: String(first.regularMarketChange) },
+          regularMarketChangePercent: { raw: first.regularMarketChangePercent, fmt: `${(first.regularMarketChangePercent ?? 0).toFixed(2)}%` },
+          marketTime: first.regularMarketTime
+        },
+        summaryDetail: {
+          previousClose: first.regularMarketPreviousClose,
+          open: first.regularMarketOpen,
+          dayLow: first.regularMarketDayLow,
+          dayHigh: first.regularMarketDayHigh,
+          regularMarketPreviousClose: first.regularMarketPreviousClose,
+          regularMarketOpen: first.regularMarketOpen,
+          regularMarketDayLow: first.regularMarketDayLow,
+          regularMarketDayHigh: first.regularMarketDayHigh,
+          volume: first.regularMarketVolume,
+          regularMarketVolume: first.regularMarketVolume,
+          averageDailyVolume10Day: first.averageDailyVolume10Day,
+          averageDailyVolume3Month: first.averageDailyVolume3Month,
+          marketCap: first.marketCap,
+          fiftyTwoWeekLow: first.fiftyTwoWeekLow,
+          fiftyTwoWeekHigh: first.fiftyTwoWeekHigh,
+          currency: first.currency,
+          bid: first.bid,
+          ask: first.ask,
+          bidSize: first.bidSize,
+          askSize: first.askSize,
+          tradeable: first.tradeable
+        }
+      };
+      return mapped;
     } catch (err: any) {
       console.error('[RapidApiYahooService.getQuote] Error', {
         message: err?.message,
