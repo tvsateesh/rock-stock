@@ -30,18 +30,32 @@ export class RapidApiYahooService {
   }
 
   /**
-   * Search for stocks
-   * Note: yh-finance doesn't have a direct search endpoint in the free tier
-   * Consider using auto-complete or returning mock data for search
+   * Search for stocks using auto-complete, fallback to quotes
    */
   static async search(query: string) {
-    // Fallback: return empty results as yh-finance doesn't have a public search endpoint
-    // In production, you'd either use a different API or mock data
-    return {
-      quotes: [],
-      news: [],
-      research: []
-    };
+    // Try auto-complete if available
+    try {
+      const autoUrl = `/market/auto-complete?region=US&query=${encodeURIComponent(query)}`;
+      const autoResp = await http.get(autoUrl);
+      if (autoResp?.data) {
+        return autoResp.data;
+      }
+    } catch (e) {
+      // ignore and fallback
+    }
+
+    // Fallback to quotes for exact symbol
+    try {
+      const quotesUrl = `/market/v2/get-quotes?region=US&symbols=${encodeURIComponent(query.toUpperCase())}`;
+      const quotesResp = await http.get(quotesUrl);
+      return {
+        quotes: quotesResp?.data ?? [],
+        news: [],
+        research: []
+      };
+    } catch (e) {
+      return { quotes: [], news: [], research: [] };
+    }
   }
 
   /**
