@@ -29,8 +29,7 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true
+              "sourceMap": false
             }
           }
         },
@@ -53,7 +52,6 @@
       }
     }
   },
-  "defaultProject": "rock-stock-frontend",
   "cli": {
     "analytics": "f7a6af35-ce9e-4191-a973-2905d212a72d"
   }
