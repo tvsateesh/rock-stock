@@ -12,7 +12,7 @@ COPY frontend/angular.json ./
 COPY frontend/tsconfig.json ./
 COPY frontend/tsconfig.app.json ./
 
-RUN npm run build
+RUN npm run build --configuration production
 
 # Backend build stage
 FROM node:18-alpine AS backend-build
