@@ -13,8 +13,21 @@ export class RapidApiYahooService {
   static async getQuote(symbols: string | string[]) {
     const symbolParam = Array.isArray(symbols) ? symbols.join(',') : symbols;
     const url = `/market/v2/get-quotes?region=US&symbols=${encodeURIComponent(symbolParam)}`;
-    const resp = await http.get(url);
-    return resp.data;
+    console.info('[RapidApiYahooService.getQuote] Request', { url });
+    try {
+      const resp = await http.get(url);
+      console.info('[RapidApiYahooService.getQuote] Response', { status: resp.status, statusText: resp.statusText });
+      return resp.data;
+    } catch (err: any) {
+      console.error('[RapidApiYahooService.getQuote] Error', {
+        message: err?.message,
+        code: err?.code,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+      });
+      throw err;
+    }
   }
 
   /**
@@ -25,8 +38,21 @@ export class RapidApiYahooService {
     // Note: yh-finance doesn't have direct historical data via this endpoint
     // Using fundamentals as fallback; consider adding a separate historical endpoint if available
     const url = `/stock/get-fundamentals?symbol=${encodeURIComponent(symbol)}&region=US&lang=en-US&modules=assetProfile,summaryProfile`;
-    const resp = await http.get(url);
-    return resp.data;
+    console.info('[RapidApiYahooService.getHistorical] Request', { url });
+    try {
+      const resp = await http.get(url);
+      console.info('[RapidApiYahooService.getHistorical] Response', { status: resp.status, statusText: resp.statusText });
+      return resp.data;
+    } catch (err: any) {
+      console.error('[RapidApiYahooService.getHistorical] Error', {
+        message: err?.message,
+        code: err?.code,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+      });
+      throw err;
+    }
   }
 
   /**
@@ -36,15 +62,20 @@ export class RapidApiYahooService {
     // Primary: use get-quotes and map to our expected shape
     try {
       const quotesUrl = `/market/v2/get-quotes?region=US&symbols=${encodeURIComponent(query.toUpperCase())}`;
+      console.info('[RapidApiYahooService.search] Request', { url: quotesUrl });
       const quotesResp = await http.get(quotesUrl);
+      console.info('[RapidApiYahooService.search] Response', { status: quotesResp.status, statusText: quotesResp.statusText });
       const data = quotesResp?.data || {};
+      console.debug('[RapidApiYahooService.search] Body keys', { keys: Object.keys(data || {}) });
       const results = data.quoteResponse?.result || [];
+      console.info('[RapidApiYahooService.search] Quote count', { count: results.length });
       return {
         quotes: results,
         news: [],
         research: []
       };
     } catch (e) {
+      console.error('[RapidApiYahooService.search] Error', e);
       // Fallback: empty result set
       return { quotes: [], news: [], research: [] };
     }
@@ -56,8 +87,21 @@ export class RapidApiYahooService {
    */
   static async getConversations(symbol: string, limit = 10) {
     const url = `/conversations/list?symbol=${encodeURIComponent(symbol)}&region=US&userActivity=true&sortBy=createdAt&off=0`;
-    const resp = await http.get(url);
-    return resp.data;
+    console.info('[RapidApiYahooService.getConversations] Request', { url });
+    try {
+      const resp = await http.get(url);
+      console.info('[RapidApiYahooService.getConversations] Response', { status: resp.status, statusText: resp.statusText });
+      return resp.data;
+    } catch (err: any) {
+      console.error('[RapidApiYahooService.getConversations] Error', {
+        message: err?.message,
+        code: err?.code,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+      });
+      throw err;
+    }
   }
 }
 
@@ -138,23 +182,33 @@ class MockYahooService {
   };
 
   static async getQuote(symbols: string | string[]) {
+    console.info('[MockYahooService.getQuote] Using mock path', { symbols });
     const symbolsArr = Array.isArray(symbols) ? symbols : [symbols];
     if (symbolsArr.length === 1) {
       const s = symbolsArr[0].toUpperCase();
-      return this.mockData.quotes[s as keyof typeof this.mockData.quotes] || { symbol: s, price: null };
+      const result = this.mockData.quotes[s as keyof typeof this.mockData.quotes] || { symbol: s, price: null };
+      console.debug('[MockYahooService.getQuote] Result (single)', { symbol: s, hasPrice: !!(result as any).price });
+      return result;
     }
-    return symbolsArr.map(s => this.mockData.quotes[s.toUpperCase() as keyof typeof this.mockData.quotes] || { symbol: s.toUpperCase() });
+    const results = symbolsArr.map(s => this.mockData.quotes[s.toUpperCase() as keyof typeof this.mockData.quotes] || { symbol: s.toUpperCase() });
+    console.debug('[MockYahooService.getQuote] Result (multi)', { count: results.length });
+    return results;
   }
 
   static async getHistorical(symbol: string, period = '1mo', interval = '1d') {
-    return { ...this.mockData.historical, meta: { symbol: symbol.toUpperCase() } };
+    console.info('[MockYahooService.getHistorical] Using mock path', { symbol, period, interval });
+    const payload = { ...this.mockData.historical, meta: { symbol: symbol.toUpperCase() } };
+    console.debug('[MockYahooService.getHistorical] Payload keys', { keys: Object.keys(payload || {}) });
+    return payload;
   }
 
   static async search(query: string) {
+    console.info('[MockYahooService.search] Using mock path', { query });
     const q = query.toLowerCase();
     const matches = this.mockData.search.filter(item =>
       (item.symbol + ' ' + (item.shortname || '') + ' ' + (item.name || '')).toLowerCase().includes(q)
     );
+    console.debug('[MockYahooService.search] Match count', { count: matches.length });
     return { quotes: matches };
   }
 }
