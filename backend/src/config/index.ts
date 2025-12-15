@@ -3,7 +3,7 @@ dotenv.config();
 
 export const config = {
   rapidapiKey: process.env.RAPIDAPI_KEY || '',
-  rapidapiHost: process.env.RAPIDAPI_HOST || 'yahoo-finance15.p.rapidapi.com',
+  rapidapiHost: process.env.RAPIDAPI_HOST || 'yh-finance.p.rapidapi.com',
   port: Number(process.env.PORT || 4000),
   cacheTTL: Number(process.env.CACHE_TTL_SECONDS || 60),
   nodeEnv: process.env.NODE_ENV || 'development',

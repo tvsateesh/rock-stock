@@ -18,5 +18,5 @@ services:
       - key: RAPIDAPI_KEY
         scope: secret
       - key: RAPIDAPI_HOST
-        value: real-time-finance-data.p.rapidapi.com
+        value: yh-finance.p.rapidapi.com
     healthCheckPath: /api/quote?symbol=AAPL

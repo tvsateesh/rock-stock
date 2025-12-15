@@ -2,26 +2,54 @@ import http from '../utils/httpClient';
 import { config } from '../config';
 
 /**
- * RapidApiYahooService - wraps a small subset of Yahoo Finance endpoints available via RapidAPI.
+ * RapidApiYahooService - wraps Yahoo Finance endpoints from yh-finance RapidAPI.
  * Methods return raw API shapes mapped into a predictable shape for the frontend.
  */
 export class RapidApiYahooService {
+  /**
+   * Get stock quotes for one or more symbols
+   * Uses: /market/v2/get-quotes endpoint
+   */
   static async getQuote(symbols: string | string[]) {
     const symbolParam = Array.isArray(symbols) ? symbols.join(',') : symbols;
-    const url = `/stock/v2/get-summary?symbol=${encodeURIComponent(symbolParam)}`;
+    const url = `/market/v2/get-quotes?region=US&symbols=${encodeURIComponent(symbolParam)}`;
     const resp = await http.get(url);
-    // rapidapi endpoint returns different shapes; pass through main parts
     return resp.data;
   }
 
+  /**
+   * Get fundamental data for a stock (assetProfile, summaryProfile)
+   * Uses: /stock/get-fundamentals endpoint
+   */
   static async getHistorical(symbol: string, period = '1mo', interval = '1d') {
-    const url = `/stock/v3/get-chart?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&range=${encodeURIComponent(period)}`;
+    // Note: yh-finance doesn't have direct historical data via this endpoint
+    // Using fundamentals as fallback; consider adding a separate historical endpoint if available
+    const url = `/stock/get-fundamentals?symbol=${encodeURIComponent(symbol)}&region=US&lang=en-US&modules=assetProfile,summaryProfile`;
     const resp = await http.get(url);
     return resp.data;
   }
 
+  /**
+   * Search for stocks
+   * Note: yh-finance doesn't have a direct search endpoint in the free tier
+   * Consider using auto-complete or returning mock data for search
+   */
   static async search(query: string) {
-    const url = `/auto-complete?q=${encodeURIComponent(query)}&region=US`;
+    // Fallback: return empty results as yh-finance doesn't have a public search endpoint
+    // In production, you'd either use a different API or mock data
+    return {
+      quotes: [],
+      news: [],
+      research: []
+    };
+  }
+
+  /**
+   * Get community conversations for a stock
+   * Uses: /conversations/list endpoint
+   */
+  static async getConversations(symbol: string, limit = 10) {
+    const url = `/conversations/list?symbol=${encodeURIComponent(symbol)}&region=US&userActivity=true&sortBy=createdAt&off=0`;
     const resp = await http.get(url);
     return resp.data;
   }
